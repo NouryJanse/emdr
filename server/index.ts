@@ -95,6 +95,7 @@ setInterval(() => {
       if (room && room?.key) {
         io.to(room.key).emit("event", `In room ${room.key} with ${JSON.stringify(room.users)}`);
       }
+      // delete room if older than 2 hours
     }
   }
 }, 5000);
