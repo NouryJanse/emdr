@@ -18,7 +18,7 @@ const App = () => {
   const [hideAnimation, setHideAnimation] = useState<boolean>(false);
   const [generating, setGenerating] = useState<boolean>(false);
   const [userId, setUserId] = useState<string>("");
-  const { seconds, start, pause, running, stop } = useTimer();
+  const { seconds, start, stop } = useTimer();
 
   useEffect(() => {
     socket.on("connect", () => {
@@ -29,9 +29,6 @@ const App = () => {
     });
     socket.on("disconnect", () => {
       console.log("disconnect");
-    });
-    socket.on("event", (msg) => {
-      console.log(msg);
     });
     socket.on("isAnimating", (msg: boolean) => {
       setIsAnimating(msg);
@@ -194,7 +191,7 @@ const App = () => {
                 <div
                   id="search-spinner"
                   className={`${isAnimating ? "spin" : ""}`}
-                  onClick={(e) => generateEventKey()}
+                  onClick={() => generateEventKey()}
                 />
               </>
             ) : (
@@ -214,7 +211,7 @@ const App = () => {
                 placeholder=""
                 required
               />
-              <div id="search-spinner" className={`${generating ? "spin" : ""}`} onClick={(e) => generateEventKey()} />
+              <div id="search-spinner" className={`${generating ? "spin" : ""}`} onClick={() => generateEventKey()} />
             </div>
           </div>
 
