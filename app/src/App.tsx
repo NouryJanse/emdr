@@ -200,7 +200,7 @@ const App = () => {
           </button>
 
           <div className="mr-5">
-            <label className="flex text-sm font-medium text-gray-900 dark:text-white mb-1">EventKey</label>
+            <label className="flex text-sm font-medium text-gray-900 dark:text-white mb-1">Key</label>
             <div className="relative">
               <input
                 type="input"
