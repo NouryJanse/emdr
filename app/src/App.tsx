@@ -8,6 +8,8 @@ import InputSize from "./components/InputSize";
 import InputBackgroundColor from "./components/InputBackgroundColor";
 import MotionCircle from "./components/MotionCircle";
 import Buttons from "./components/Buttons";
+import "./index.scss";
+import InputKey from "./components/InputKey";
 
 const API_URL = process.env.REACT_APP_SOCKET_URL as string;
 const socket = io(API_URL, {});
@@ -23,25 +25,10 @@ const App = () => {
   const [generating, setGenerating] = useState<boolean>(false);
   const [userId, setUserId] = useState<string>("");
   const { seconds, start, stop } = useTimer();
+  const [isConnected, setIsConnected] = useState();
 
   useEffect(() => {
-    socket.on("connect", () => {
-      console.log("connect");
-    });
-    socket.on("userId", (id: string) => {
-      setUserId(id);
-    });
-    socket.on("disconnect", () => {
-      console.log("disconnect");
-    });
-    socket.on("isAnimating", (msg: boolean) => {
-      setIsAnimating(msg);
-    });
-    return () => {
-      socket.off("connect");
-      socket.off("disconnect");
-      socket.off("message");
-    };
+    activateSocket(setUserId, setIsAnimating, setIsConnected);
   }, []);
 
   // generates a (fairly) unique event key for shared sessions
@@ -90,7 +77,20 @@ const App = () => {
   return (
     <>
       <div className="App flex flex-col h-full" style={{ backgroundColor: backgroundColor }}>
-        <span className="text-white">{userId ? "online" : "offline"}</span>
+        <span className="text-white p-5">
+          {isConnected ? (
+            <p>
+              Online
+              <i className="pulse green"></i>
+            </p>
+          ) : (
+            <p>
+              Offline
+              <i className="pulse red"></i>
+            </p>
+          )}
+        </span>
+
         <MotionCircle isAnimating={isAnimating} size={size} speed={speed} color={color} hideAnimation={hideAnimation} />
 
         <div className="flex flex-row justify-center items-start p-5 bg-gray-500">
@@ -106,26 +106,36 @@ const App = () => {
             seconds={seconds}
             generateEventKey={generateEventKey}
           />
-
-          <div className="mr-5">
-            <label className="flex text-sm font-medium text-gray-900 dark:text-white mb-1">Key</label>
-            <div className="relative">
-              <input
-                type="input"
-                style={{ width: "128px" }}
-                value={eventKey}
-                onChange={(e) => setEventKey(e.target.value)}
-                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                placeholder=""
-                required
-              />
-              <div id="search-spinner" className={`${generating ? "spin" : ""}`} onClick={() => generateEventKey()} />
-            </div>
-          </div>
+          <InputKey
+            setEventKey={setEventKey}
+            eventKey={eventKey}
+            generateEventKey={generateEventKey}
+            generating={generating}
+          />
         </div>
       </div>
     </>
   );
+};
+
+const activateSocket = (setUserId: any, setIsAnimating: any, setIsconnected: any) => {
+  socket.on("connect", () => {
+    setIsconnected(true);
+  });
+  socket.on("userId", (id: string) => {
+    setUserId(id);
+  });
+  socket.on("disconnect", () => {
+    setIsconnected(false);
+  });
+  socket.on("isAnimating", (msg: boolean) => {
+    setIsAnimating(msg);
+  });
+  return () => {
+    socket.off("connect");
+    socket.off("disconnect");
+    socket.off("message");
+  };
 };
 
 export default App;
